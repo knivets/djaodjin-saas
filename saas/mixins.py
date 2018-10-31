@@ -58,6 +58,7 @@ class CartMixin(object):
         template_item = None
         invoice_key = kwargs.get('invoice_key', None)
         sync_on = kwargs.get('sync_on', "")
+        quantity = kwargs.get('quantity', 0)
         plan = kwargs['plan']
         if not isinstance(plan, Plan):
             plan = get_object_or_404(Plan.objects.all(), slug=plan)
@@ -81,12 +82,16 @@ class CartMixin(object):
                         if sync_on != template_item.sync_on:
                             # Copy/Replace in template CartItem
                             created = True
+                            if quantity == 0:
+                                quan = template_item.quantity
+                            else:
+                                quan = quantity
                             inserted_item = CartItem.objects.create(
                                 user=request.user,
                                 plan=template_item.plan,
                                 use=template_item.use,
                                 coupon=template_item.coupon,
-                                quantity=template_item.quantity,
+                                quantity=quan,
                                 first_name=kwargs.get('first_name', ''),
                                 last_name=kwargs.get('last_name', ''),
                                 sync_on=sync_on,
@@ -95,8 +100,15 @@ class CartMixin(object):
                         # Use template CartItem
                         inserted_item.first_name = kwargs.get('first_name', '')
                         inserted_item.last_name = kwargs.get('last_name', '')
+                        inserted_item.quantity = quantity
                         inserted_item.sync_on = sync_on
                         inserted_item.save()
+                else:
+                    # Use template CartItem
+                    inserted_item.first_name = kwargs.get('first_name', '')
+                    inserted_item.last_name = kwargs.get('last_name', '')
+                    inserted_item.quantity = quantity
+                    inserted_item.save()
             else:
                 # New CartItem
                 created = True

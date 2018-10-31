@@ -755,6 +755,22 @@ djaodjin-saas/tree/master/saas/templates/saas/billing/cart.html>`__).
         return context
 
 
+class CheckoutView(OrganizationMixin, TemplateView):
+    """
+    A checkout view
+    """
+
+    template_name = 'saas/billing/checkout.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CheckoutView, self).get_context_data(**kwargs)
+        urls = {'organization': {
+            'api_checkout': reverse('saas_api_checkout', args=(self.organization,)),
+        }}
+        self.update_context_urls(context, urls)
+        return context
+
+
 class VTChargeView(CardFormMixin, FormView):
     """
     Virtual Terminal to create a Charge that is not directly tied to a Plan.

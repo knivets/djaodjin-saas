@@ -1296,3 +1296,88 @@ var app = new Vue({
     }
 })
 }
+
+if($('#checkout-container').length > 0){
+var app = new Vue({
+    el: "#checkout-container",
+    mixins: [itemListMixin],
+    data: {
+        url: djaodjinSettings.urls.api_checkout,
+        plansPeriods: {},
+        coupon: '',
+    },
+    methods: {
+        parseDescr: function(des){
+            var res = des.split('(');
+            return res[res.length-1].split(' ')[0];
+        },
+        optionSelected: function(plan, descr){
+            var vm = this;
+            var period = this.parseDescr(descr);
+            $.ajax({
+                method: 'POST',
+                url: djaodjinSettings.urls.api_cart,
+                data: {
+                    plan: plan.slug,
+                    quantity: period
+                },
+            }).done(function(resp) {
+                vm.$set(vm.plansPeriods, plan.slug, descr);
+                // TODO update total amount
+            }).fail(function(resp){
+                showErrorMessages(resp);
+            });
+        },
+        submit: function(){
+        },
+        remove: function(plan){
+            var vm = this;
+            var url = djaodjinSettings.urls.api_cart + plan + '/';
+            $.ajax({
+                method: 'DELETE',
+                url: url,
+            }).done(function() {
+                vm.get()
+            }).fail(function(resp){
+                showErrorMessages(resp);
+            });
+        },
+        redeem: function(){
+            var vm = this;
+            $.ajax({
+                method: 'POST',
+                url: djaodjinSettings.urls.api_redeem_coupon,
+                data: {code: vm.coupon},
+            }).done(function(resp) {
+                showMessages(["Coupon was successfully applied."], "success");
+                vm.get()
+            }).fail(function(resp){
+                showErrorMessages(resp);
+            });
+        }
+    },
+    computed: {
+        linesPrice: function(){
+            var total = 0;
+            var unit = 'usd';
+            if(this.items.items){
+                this.items.items.map(function(e){
+                    if(e.options.length > 0){
+                        total += e.options[0].dest_amount;
+                        unit = e.options[0].dest_unit;
+                    }
+                    e.lines.map(function(l){
+                        total += l.dest_amount;
+                        unit = l.dest_unit;
+                    });
+                });
+            }
+            return [total / 100, unit];
+        }
+    },
+    mounted: function(){
+        this.get()
+    }
+})
+}
+
