@@ -88,6 +88,7 @@ var itemListMixin = {
                     count: 0
                 },
                 params: {},
+                getCb: null,
             }
             if(djaodjinSettings.date_range.start_at ) {
                 data.params['start_at'] = moment(djaodjinSettings.date_range.start_at).toDate()
@@ -105,10 +106,15 @@ var itemListMixin = {
         get: function(){
             var vm = this;
             if(!vm.url) return
-            $.get(vm.url, vm.getParams(), function(res){
-                vm.items = res
-                vm.itemsLoaded = true;
-            });
+            if(vm[vm.getCb]){
+                var cb = vm[vm.getCb];
+            } else {
+                var cb = function(res){
+                    vm.items = res
+                    vm.itemsLoaded = true;
+                }
+            }
+            $.get(vm.url, vm.getParams(), cb);
         },
         getParams: function(){
             return this.params
@@ -1305,30 +1311,44 @@ var app = new Vue({
         url: djaodjinSettings.urls.api_checkout,
         plansPeriods: {},
         coupon: '',
+        optionsConfirmed: false,
+        getCb: 'getAndSelectInitialOptions',
     },
     methods: {
         parseDescr: function(des){
             var res = des.split('(');
             return res[res.length-1].split(' ')[0];
         },
-        optionSelected: function(plan, descr){
-            var vm = this;
-            var period = this.parseDescr(descr);
-            $.ajax({
-                method: 'POST',
-                url: djaodjinSettings.urls.api_cart,
-                data: {
-                    plan: plan.slug,
-                    quantity: period
-                },
-            }).done(function(resp) {
-                vm.$set(vm.plansPeriods, plan.slug, descr);
-                // TODO update total amount
-            }).fail(function(resp){
-                showErrorMessages(resp);
-            });
+        optionSelected: function(plan, option){
+            this.$set(this.plansPeriods, plan, option);
         },
-        submit: function(){
+        confirmOptions: function(){
+            var vm = this;
+            var count = 0;
+            var total = vm.items.count;
+            vm.items.results.map(function(item){
+                var plan = item.subscription.plan.slug
+                var option = vm.selectedOption(plan);
+                if(!option) return;
+                var period = vm.parseDescr(option.description);
+                $.ajax({
+                    method: 'POST',
+                    url: djaodjinSettings.urls.api_cart,
+                    data: {
+                        plan: plan,
+                        quantity: period
+                    },
+                }).done(function(resp) {
+                    count += 1;
+                    if(count === total){
+                        // rudimentary syncing
+                        vm.get();
+                        vm.optionsConfirmed = true;
+                    }
+                }).fail(function(resp){
+                    showErrorMessages(resp);
+                });
+            });
         },
         remove: function(plan){
             var vm = this;
@@ -1354,17 +1374,51 @@ var app = new Vue({
             }).fail(function(resp){
                 showErrorMessages(resp);
             });
-        }
+        },
+        getAndSelectInitialOptions: function(res){
+            var results = res.items
+            var periods = {}
+            var optionsConfirmed = results.length > 0 ? true : false;
+            results.map(function(e){
+                if(e.options.length > 0){
+                    optionsConfirmed = false;
+                    periods[e.subscription.plan.slug] = e.options[0];
+                }
+            });
+
+
+            this.items = {
+                results: results,
+                count: results.length
+            }
+            this.itemsLoaded = true;
+            this.plansPeriods = periods;
+            this.optionsConfirmed = optionsConfirmed;
+        },
+        isOptionSelected: function(plan, option){
+            var selected = this.plansPeriods[plan];
+            return selected && selected.description == option.description;
+        },
+        selectedOption: function(plan){
+            var option = this.plansPeriods[plan];
+            if(option){
+                return option;
+            }
+        },
     },
     computed: {
         linesPrice: function(){
+            var vm = this;
             var total = 0;
             var unit = 'usd';
-            if(this.items.items){
-                this.items.items.map(function(e){
+            if(this.items.results){
+                this.items.results.map(function(e){
                     if(e.options.length > 0){
-                        total += e.options[0].dest_amount;
-                        unit = e.options[0].dest_unit;
+                        var option = vm.selectedOption(e.subscription.plan.slug);
+                        if(option){
+                            total += option.dest_amount;
+                            unit = option.dest_unit;
+                        }
                     }
                     e.lines.map(function(l){
                         total += l.dest_amount;

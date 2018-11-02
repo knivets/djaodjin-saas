@@ -6,37 +6,94 @@
             <input name="code" type="text" placeholder="Coupon code" v-model="coupon">
             <button type="submit" class="submit-code">Redeem</button>
         </form>
-        <table>
-            <tbody>
-                <tr v-for="item in items.items">
-                    <td>
-                        <em>[[item.subscription.plan.title]] from
-                      [[item.subscription.plan.organization]]</em>
-                        <button @click="remove(item.subscription.plan.slug)">delete</button>
-                        <table>
-                            <tbody>
-                                <tr v-for="line in item.lines" class="invoice-item">
-                                    <td></td>
-                                    <td>[[line.amount]]</td>
-                                    <td v-html="line.description"></td>
-                                </tr>
-                                <tr v-for="option in item.options">
-                                    <td><input type="radio" :name="item.name" :value="option.dest_amount" @change="optionSelected(item.subscription.plan, option.description)" :checked="plansPeriods[item.subscription.plan.slug] == option.description"></input></td>
-                                    <td>[[option.amount]]</td>
-                                    <td v-html="option.description"></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </td>
-                </tr>
-                <tfoot>
-                    <tr>
-                        <th class="total-amount">[[linesPrice[0] | currency($options.filters.currencyToSymbol(linesPrice[1]))]]</th>
-                        <th>Charged Today</th>
+        <form @submit.prevent="confirmOptions">
+            <table>
+                <tbody>
+                    <tr v-for="item in items.results">
+                        <td>
+                            <em>[[item.subscription.plan.title]] from
+                          [[item.subscription.plan.organization]]</em>
+                            <button type="button" @click="remove(item.subscription.plan.slug)">delete</button>
+                            <table>
+                                <tbody>
+                                    <tr v-for="line in item.lines" class="invoice-item">
+                                        <td></td>
+                                        <td>[[line.amount]]</td>
+                                        <td v-html="line.description"></td>
+                                    </tr>
+                                    <tr v-for="option in item.options">
+                                        <td><input type="radio" :name="item.name" :value="option.dest_amount" @change="optionSelected(item.subscription.plan.slug, option)" :checked="isOptionSelected(item.subscription.plan.slug, option)"></input></td>
+                                        <td>[[option.amount]]</td>
+                                        <td v-html="option.description"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
                     </tr>
-                </tfoot>
-            </tbody>
-        </table>
+                    <tfoot>
+                        <tr>
+                            <th class="total-amount">[[linesPrice[0] | currency($options.filters.currencyToSymbol(linesPrice[1]))]]</th>
+                            <th>Charged Today</th>
+                        </tr>
+                    </tfoot>
+                </tbody>
+            </table>
+            <button type="submit">next &raquo;</button>
+        </form>
+        <div v-show="optionsConfirmed">
+            <fieldset>
+                <legend>Credit Card Information
+                {% if last4 and not force_update %}
+                    <a id="card-update" href="{{urls.organization.update_card}}">Update</a>
+                {% endif %}
+                </legend>
+                {% if last4 %}
+                    <div>
+                        <dl>
+                              <dt>card</dt>
+                              <dd>{{last4}}</dd>
+                        </dl>
+                        <dl>
+                              <dt>expires</dt>
+                              <dd>{{exp_date}}</dd>
+                        </dl>
+                    </div>
+                {% endif %}
+                {% if not last4 or force_update %}
+                  <!-- BE CAREFULL: Do not add name="" to these <input> nodes, else
+                       values will hit the server and break PCI compliance. -->
+                  <div class="form-group">
+                        <label for="card-number">Card Number</label>
+                        <input id="card-number"
+                               type="text" size="16" placeholder="Card number"
+                               autocomplete="off" />
+                  </div>
+                  <div class="form-group">
+                        <label>Expiration</label>
+                        <input id="card-exp-month"
+                               type="text" maxlength="2" size="2" placeholder="MM" />
+                        <input id="card-exp-year"
+                               type="text" maxlength="4" size="4" placeholder="YYYY" />
+                  </div>
+                  <div class="form-group">
+                        <label>Security Code</label>
+                        <input id="card-cvc"
+                               type="text" maxlength="4" size="3" placeholder="CVC"
+                               autocomplete="off" />
+                  </div>
+                    <legend>Billing Address</legend>
+                    {{form.card_name}}
+                    {{form.card_address_line1}}
+                    {{form.card_city}}
+                    {{form.region}}
+                    {{form.card_address_zip}}
+                    {{form.country}}
+                {% endif %}
+            </fieldset>
+            <div>
+                <button type="submit" class="payment-submit">{% if submit_title %}{{submit_title}}{% else %}{% if force_update %}Update{% else %}Submit{% endif %}{% endif %}</button>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
