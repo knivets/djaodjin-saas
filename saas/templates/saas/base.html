@@ -56,6 +56,7 @@ urls: {
     api_redeem_coupon: "{{ urls.api_redeem }}",
 {% if urls.organization %}
     api_checkout: "{{urls.organization.api_checkout}}",
+    api_card: "{{ urls.organization.api_card }}",
 {% if urls.organization.api_roles %}
     saas_api_user_roles_url: "{{ urls.organization.api_roles }}",
 {% endif %}
@@ -119,6 +120,9 @@ user: {
     first_name: "{{request.user.first_name}}",
     last_name: "{{request.user.last_name}}"
 },
+{% if STRIPE_PUB_KEY %}
+    stripePubKey: "{{ STRIPE_PUB_KEY }}",
+{% endif %}
 csrf: "{{csrf_token}}"
 };
 </script>

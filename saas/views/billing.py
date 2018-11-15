@@ -260,11 +260,6 @@ class InvoicablesFormMixin(OrganizationMixin):
         lines_amount = 0
         lines_unit = settings.DEFAULT_UNIT
         for invoicable in self.invoicables:
-            if len(invoicable['options']) > 0:
-                # In case it is pure options, no lines.
-                lines_unit = invoicable['options'][0].dest_unit
-                invoicable['selected_amount'] \
-                    = invoicable['options'][0].dest_amount
             for line in invoicable['lines']:
                 lines_amount += line.dest_amount
                 lines_unit = line.dest_unit
@@ -340,16 +335,16 @@ class CardInvoicablesFormMixin(CardFormMixin, InvoicablesFormMixin):
                 self.sole_provider = False
             if plan_key in form.cleaned_data:
                 selected_line = int(form.cleaned_data[plan_key])
-                for line in invoicable['options']:
-                    if line.dest_amount == selected_line:
-                        # Normalize unlock line description to
-                        # "subscribe <plan> until ..."
-                        if match_unlock(line.descr):
-                            nb_periods = plan.period_number(line.descr)
-                            line.descr = describe_buy_periods(plan,
-                                plan.end_of_period(line.created_at, nb_periods),
-                                nb_periods)
-                        invoicable['lines'] += [line]
+                if selected_line > 0 and (selected_line - 1) < len(invoicable['options']):
+                    line = invoicable['options'][selected_line]
+                    # Normalize unlock line description to
+                    # "subscribe <plan> until ..."
+                    if match_unlock(line.descr):
+                        nb_periods = plan.period_number(line.descr)
+                        line.descr = describe_buy_periods(plan,
+                            plan.end_of_period(line.created_at, nb_periods),
+                            nb_periods)
+                    invoicable['lines'] += [line]
 
         try:
             self.charge = self.organization.checkout(
@@ -626,23 +621,20 @@ class CartPeriodsView(CartBaseView):
         and charge the invoiced items which are due now.
         """
         for invoicable in self.invoicables:
-            # We use two conventions here:
-            # 1. POST parameters prefixed with cart- correspond to an entry
+            # We use the following convention here:
+            # POST parameters prefixed with cart- correspond to an entry
             #    in the invoicables
-            # 2. Amounts for each line in a entry are unique and are what
-            #    is passed for the value of the matching POST parameter.
             plan = invoicable['subscription'].plan
             plan_key = invoicable['name']
             if plan_key in form.cleaned_data:
                 selected_line = int(form.cleaned_data[plan_key])
-                for line in invoicable['options']:
-                    if line.dest_amount == selected_line:
-                        queryset = CartItem.objects.get_cart(
-                            user=self.request.user).filter(plan=plan)
-                        for cart_item in queryset:
-                            cart_item.quantity \
-                                = plan.period_number(line.descr)
-                            cart_item.save()
+                if selected_line > 0 and (selected_line - 1) < len(invoicable['options']):
+                    queryset = CartItem.objects.get_cart(
+                        user=self.request.user).filter(plan=plan)
+                    for cart_item in queryset:
+                        cart_item.option = selected_line
+                        cart_item.save()
+
         return super(CartPeriodsView, self).form_valid(form)
 
     @property
@@ -681,8 +673,8 @@ class CartSeatsView(CartPeriodsView):
 
     def get(self, request, *args, **kwargs):
         if self.cart_items.filter(
-                quantity=0, plan__advance_discount__gt=0).exists():
-            # If quantity == 0 and there is a discount to buy periods
+                option=0, plan__advance_discount__gt=0).exists():
+            # If option == 0 and there is a discount to buy periods
             # in advance, we will present multiple options to the user.
             return http.HttpResponseRedirect(
                 reverse('saas_cart_periods', args=(self.organization,)))
@@ -764,8 +756,15 @@ class CheckoutView(OrganizationMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CheckoutView, self).get_context_data(**kwargs)
+        try:
+            context.update(self.organization.retrieve_card())
+        except ProcessorConnectionError:
+            messages.error(self.request, _("The payment processor is "\
+                "currently unreachable. Sorry for the inconvienience."))
         urls = {'organization': {
             'api_checkout': reverse('saas_api_checkout', args=(self.organization,)),
+            'update_card': reverse(
+                'saas_update_card', args=(self.organization,))
         }}
         self.update_context_urls(context, urls)
         return context

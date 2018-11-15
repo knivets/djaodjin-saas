@@ -74,6 +74,342 @@ Vue.filter('relativeDate', function(at_time) {
     }
 });
 
+var countries = {
+    "AF": "Afghanistan",
+    "AX": "Åland Islands",
+    "AL": "Albania",
+    "DZ": "Algeria",
+    "AS": "American Samoa",
+    "AD": "Andorra",
+    "AO": "Angola",
+    "AI": "Anguilla",
+    "AQ": "Antarctica",
+    "AG": "Antigua and Barbuda",
+    "AR": "Argentina",
+    "AM": "Armenia",
+    "AW": "Aruba",
+    "AU": "Australia",
+    "AT": "Austria",
+    "AZ": "Azerbaijan",
+    "BS": "Bahamas",
+    "BH": "Bahrain",
+    "BD": "Bangladesh",
+    "BB": "Barbados",
+    "BY": "Belarus",
+    "BE": "Belgium",
+    "BZ": "Belize",
+    "BJ": "Benin",
+    "BM": "Bermuda",
+    "BT": "Bhutan",
+    "BO": "Bolivia (Plurinational State of)",
+    "BQ": "Bonaire, Sint Eustatius and Saba",
+    "BA": "Bosnia and Herzegovina",
+    "BW": "Botswana",
+    "BV": "Bouvet Island",
+    "BR": "Brazil",
+    "IO": "British Indian Ocean Territory",
+    "BN": "Brunei Darussalam",
+    "BG": "Bulgaria",
+    "BF": "Burkina Faso",
+    "BI": "Burundi",
+    "CV": "Cabo Verde",
+    "KH": "Cambodia",
+    "CM": "Cameroon",
+    "CA": "Canada",
+    "KY": "Cayman Islands",
+    "CF": "Central African Republic",
+    "TD": "Chad",
+    "CL": "Chile",
+    "CN": "China",
+    "CX": "Christmas Island",
+    "CC": "Cocos (Keeling) Islands",
+    "CO": "Colombia",
+    "KM": "Comoros",
+    "CD": "Congo (the Democratic Republic of the)",
+    "CG": "Congo",
+    "CK": "Cook Islands",
+    "CR": "Costa Rica",
+    "CI": "Côte d'Ivoire",
+    "HR": "Croatia",
+    "CU": "Cuba",
+    "CW": "Curaçao",
+    "CY": "Cyprus",
+    "CZ": "Czechia",
+    "DK": "Denmark",
+    "DJ": "Djibouti",
+    "DM": "Dominica",
+    "DO": "Dominican Republic",
+    "EC": "Ecuador",
+    "EG": "Egypt",
+    "SV": "El Salvador",
+    "GQ": "Equatorial Guinea",
+    "ER": "Eritrea",
+    "EE": "Estonia",
+    "SZ": "Eswatini",
+    "ET": "Ethiopia",
+    "FK": "Falkland Islands  [Malvinas]",
+    "FO": "Faroe Islands",
+    "FJ": "Fiji",
+    "FI": "Finland",
+    "FR": "France",
+    "GF": "French Guiana",
+    "PF": "French Polynesia",
+    "TF": "French Southern Territories",
+    "GA": "Gabon",
+    "GM": "Gambia",
+    "GE": "Georgia",
+    "DE": "Germany",
+    "GH": "Ghana",
+    "GI": "Gibraltar",
+    "GR": "Greece",
+    "GL": "Greenland",
+    "GD": "Grenada",
+    "GP": "Guadeloupe",
+    "GU": "Guam",
+    "GT": "Guatemala",
+    "GG": "Guernsey",
+    "GN": "Guinea",
+    "GW": "Guinea-Bissau",
+    "GY": "Guyana",
+    "HT": "Haiti",
+    "HM": "Heard Island and McDonald Islands",
+    "VA": "Holy See",
+    "HN": "Honduras",
+    "HK": "Hong Kong",
+    "HU": "Hungary",
+    "IS": "Iceland",
+    "IN": "India",
+    "ID": "Indonesia",
+    "IR": "Iran (Islamic Republic of)",
+    "IQ": "Iraq",
+    "IE": "Ireland",
+    "IM": "Isle of Man",
+    "IL": "Israel",
+    "IT": "Italy",
+    "JM": "Jamaica",
+    "JP": "Japan",
+    "JE": "Jersey",
+    "JO": "Jordan",
+    "KZ": "Kazakhstan",
+    "KE": "Kenya",
+    "KI": "Kiribati",
+    "KP": "Korea (the Democratic People's Republic of)",
+    "KR": "Korea (the Republic of)",
+    "KW": "Kuwait",
+    "KG": "Kyrgyzstan",
+    "LA": "Lao People's Democratic Republic",
+    "LV": "Latvia",
+    "LB": "Lebanon",
+    "LS": "Lesotho",
+    "LR": "Liberia",
+    "LY": "Libya",
+    "LI": "Liechtenstein",
+    "LT": "Lithuania",
+    "LU": "Luxembourg",
+    "MO": "Macao",
+    "MK": "Macedonia (the former Yugoslav Republic of)",
+    "MG": "Madagascar",
+    "MW": "Malawi",
+    "MY": "Malaysia",
+    "MV": "Maldives",
+    "ML": "Mali",
+    "MT": "Malta",
+    "MH": "Marshall Islands",
+    "MQ": "Martinique",
+    "MR": "Mauritania",
+    "MU": "Mauritius",
+    "YT": "Mayotte",
+    "MX": "Mexico",
+    "FM": "Micronesia (Federated States of)",
+    "MD": "Moldova (the Republic of)",
+    "MC": "Monaco",
+    "MN": "Mongolia",
+    "ME": "Montenegro",
+    "MS": "Montserrat",
+    "MA": "Morocco",
+    "MZ": "Mozambique",
+    "MM": "Myanmar",
+    "NA": "Namibia",
+    "NR": "Nauru",
+    "NP": "Nepal",
+    "NL": "Netherlands",
+    "NC": "New Caledonia",
+    "NZ": "New Zealand",
+    "NI": "Nicaragua",
+    "NE": "Niger",
+    "NG": "Nigeria",
+    "NU": "Niue",
+    "NF": "Norfolk Island",
+    "MP": "Northern Mariana Islands",
+    "NO": "Norway",
+    "OM": "Oman",
+    "PK": "Pakistan",
+    "PW": "Palau",
+    "PS": "Palestine, State of",
+    "PA": "Panama",
+    "PG": "Papua New Guinea",
+    "PY": "Paraguay",
+    "PE": "Peru",
+    "PH": "Philippines",
+    "PN": "Pitcairn",
+    "PL": "Poland",
+    "PT": "Portugal",
+    "PR": "Puerto Rico",
+    "QA": "Qatar",
+    "RE": "Réunion",
+    "RO": "Romania",
+    "RU": "Russian Federation",
+    "RW": "Rwanda",
+    "BL": "Saint Barthélemy",
+    "SH": "Saint Helena, Ascension and Tristan da Cunha",
+    "KN": "Saint Kitts and Nevis",
+    "LC": "Saint Lucia",
+    "MF": "Saint Martin (French part)",
+    "PM": "Saint Pierre and Miquelon",
+    "VC": "Saint Vincent and the Grenadines",
+    "WS": "Samoa",
+    "SM": "San Marino",
+    "ST": "Sao Tome and Principe",
+    "SA": "Saudi Arabia",
+    "SN": "Senegal",
+    "RS": "Serbia",
+    "SC": "Seychelles",
+    "SL": "Sierra Leone",
+    "SG": "Singapore",
+    "SX": "Sint Maarten (Dutch part)",
+    "SK": "Slovakia",
+    "SI": "Slovenia",
+    "SB": "Solomon Islands",
+    "SO": "Somalia",
+    "ZA": "South Africa",
+    "GS": "South Georgia and the South Sandwich Islands",
+    "SS": "South Sudan",
+    "ES": "Spain",
+    "LK": "Sri Lanka",
+    "SD": "Sudan",
+    "SR": "Suriname",
+    "SJ": "Svalbard and Jan Mayen",
+    "SE": "Sweden",
+    "CH": "Switzerland",
+    "SY": "Syrian Arab Republic",
+    "TW": "Taiwan (Province of China)",
+    "TJ": "Tajikistan",
+    "TZ": "Tanzania, United Republic of",
+    "TH": "Thailand",
+    "TL": "Timor-Leste",
+    "TG": "Togo",
+    "TK": "Tokelau",
+    "TO": "Tonga",
+    "TT": "Trinidad and Tobago",
+    "TN": "Tunisia",
+    "TR": "Turkey",
+    "TM": "Turkmenistan",
+    "TC": "Turks and Caicos Islands",
+    "TV": "Tuvalu",
+    "UG": "Uganda",
+    "UA": "Ukraine",
+    "AE": "United Arab Emirates",
+    "GB": "United Kingdom of Great Britain and Northern Ireland",
+    "UM": "United States Minor Outlying Islands",
+    "US": "United States of America",
+    "UY": "Uruguay",
+    "UZ": "Uzbekistan",
+    "VU": "Vanuatu",
+    "VE": "Venezuela (Bolivarian Republic of)",
+    "VN": "Viet Nam",
+    "VG": "Virgin Islands (British)",
+    "VI": "Virgin Islands (U.S.)",
+    "WF": "Wallis and Futuna",
+    "EH": "Western Sahara",
+    "YE": "Yemen",
+    "ZM": "Zambia",
+    "ZW": "Zimbabwe",
+}
+
+var regions = {
+    "CA": {
+        "AB": "Alberta",
+        "BC": "British Columbia",
+        "MB": "Manitoba",
+        "NB": "New Brunswick",
+        "NL": "Newfoundland and Labrador",
+        "NT": "Northwest Territories",
+        "NS": "Nova Scotia",
+        "NU": "Nunavut",
+        "ON": "Ontario",
+        "PE": "Prince Edward Island",
+        "QC": "Quebec",
+        "SK": "Saskatchewan",
+        "YT": "Yukon"
+    },
+    "US": {
+        "AL": "Alabama",
+        "AK": "Alaska",
+        "AS": "American Samoa",
+        "AZ": "Arizona",
+        "AR": "Arkansas",
+        "AA": "Armed Forces Americas",
+        "AE": "Armed Forces Europe",
+        "AP": "Armed Forces Pacific",
+        "CA": "California",
+        "CO": "Colorado",
+        "CT": "Connecticut",
+        "DE": "Delaware",
+        "DC": "District of Columbia",
+        "FM": "Federated States of Micronesia",
+        "FL": "Florida",
+        "GA": "Georgia",
+        "GU": "Guam",
+        "HI": "Hawaii",
+        "ID": "Idaho",
+        "IL": "Illinois",
+        "IN": "Indiana",
+        "IA": "Iowa",
+        "KS": "Kansas",
+        "KY": "Kentucky",
+        "LA": "Louisiana",
+        "ME": "Maine",
+        "MH": "Marshall Islands",
+        "MD": "Maryland",
+        "MA": "Massachusetts",
+        "MI": "Michigan",
+        "MN": "Minnesota",
+        "MS": "Mississippi",
+        "MO": "Missouri",
+        "MT": "Montana",
+        "NE": "Nebraska",
+        "NV": "Nevada",
+        "NH": "New Hampshire",
+        "NJ": "New Jersey",
+        "NM": "New Mexico",
+        "NY": "New York",
+        "NC": "North Carolina",
+        "ND": "North Dakota",
+        "MP": "Northern Mariana Islands",
+        "OH": "Ohio",
+        "OK": "Oklahoma",
+        "OR": "Oregon",
+        "PW": "Palau",
+        "PA": "Pennsylvania",
+        "PR": "Puerto Rico",
+        "RI": "Rhode Island",
+        "SC": "South Carolina",
+        "SD": "South Dakota",
+        "TN": "Tennessee",
+        "TX": "Texas",
+        "UT": "Utah",
+        "VT": "Vermont",
+        "VI": "Virgin Islands",
+        "VA": "Virginia",
+        "WA": "Washington",
+        "WV": "West Virginia",
+        "WI": "Wisconsin",
+        "WY": "Wyoming"
+    }
+}
+
+
+
 var itemListMixin = {
     data: function(){
         return this.getInitData();
@@ -1309,46 +1645,42 @@ var app = new Vue({
     mixins: [itemListMixin],
     data: {
         url: djaodjinSettings.urls.api_checkout,
-        plansPeriods: {},
+        plansOption: {},
+        plansPayer: {},
         coupon: '',
         optionsConfirmed: false,
-        getCb: 'getAndSelectInitialOptions',
+        getCb: 'getAndPrepareData',
+        cardNumber: '',
+        cardCvc: '',
+        cardExpMonth: '',
+        cardExpYear: '',
+        name: '',
+        addressLine1: '',
+        addressCity: '',
+        addressZip: '',
+        addressCountry: '',
+        addressRegion: '',
+        haveCardData: false,
+        savedCard: {},
+        countries: countries,
+        regions: regions,
     },
     methods: {
         parseDescr: function(des){
             var res = des.split('(');
             return res[res.length-1].split(' ')[0];
         },
-        optionSelected: function(plan, option){
-            this.$set(this.plansPeriods, plan, option);
-        },
-        confirmOptions: function(){
+        getOptions: function(){
             var vm = this;
-            var count = 0;
-            var total = vm.items.count;
-            vm.items.results.map(function(item){
+            var res = [];
+            vm.items.results.map(function(item, index){
                 var plan = item.subscription.plan.slug
-                var option = vm.selectedOption(plan);
-                if(!option) return;
-                var period = vm.parseDescr(option.description);
-                $.ajax({
-                    method: 'POST',
-                    url: djaodjinSettings.urls.api_cart,
-                    data: {
-                        plan: plan,
-                        quantity: period
-                    },
-                }).done(function(resp) {
-                    count += 1;
-                    if(count === total){
-                        // rudimentary syncing
-                        vm.get();
-                        vm.optionsConfirmed = true;
-                    }
-                }).fail(function(resp){
-                    showErrorMessages(resp);
-                });
+                var option = vm.plansOption[plan];
+                if(option !== undefined){
+                    res[index] = {option: option + 1}
+                }
             });
+            return res;
         },
         remove: function(plan){
             var vm = this;
@@ -1375,36 +1707,136 @@ var app = new Vue({
                 showErrorMessages(resp);
             });
         },
-        getAndSelectInitialOptions: function(res){
+        addPlanUser: function(plan, user){
+            var vm = this;
+            $.ajax({
+                method: 'POST',
+                url: djaodjinSettings.urls.api_cart,
+                data: {
+                    plan: plan,
+                    first_name: user.firstName,
+                    last_name: user.lastName,
+                },
+            }).done(function(resp) {
+                showMessages(["User was added."], "success");
+                vm.get()
+            }).fail(function(resp){
+                showErrorMessages(resp);
+            });
+        },
+        getAndPrepareData: function(res){
             var results = res.items
             var periods = {}
+            var payers = {}
             var optionsConfirmed = results.length > 0 ? true : false;
             results.map(function(e){
+                var plan = e.subscription.plan.slug;
                 if(e.options.length > 0){
                     optionsConfirmed = false;
-                    periods[e.subscription.plan.slug] = e.options[0];
+                    periods[plan] = 0;
+                }
+                payers[plan] = {
+                    firstName: '', lastName: '', email: ''
                 }
             });
-
 
             this.items = {
                 results: results,
                 count: results.length
             }
+            this.plansOption = periods;
+            this.plansPayer = payers;
             this.itemsLoaded = true;
-            this.plansPeriods = periods;
             this.optionsConfirmed = optionsConfirmed;
         },
-        isOptionSelected: function(plan, option){
-            var selected = this.plansPeriods[plan];
-            return selected && selected.description == option.description;
+        planPayer: function(plan){
+            return this.plansPayer[plan] && this.plansPayer[plan] || {}
         },
-        selectedOption: function(plan){
-            var option = this.plansPeriods[plan];
-            if(option){
-                return option;
+        activeOption: function(item){
+            var index = this.plansOption[item.subscription.plan.slug];
+            if(index !== undefined){
+                var option = item.options[index];
+                if(option) return option;
             }
+            return {};
         },
+        optionSelected: function(plan, index){
+            this.$set(this.plansOption, plan, index);
+        },
+        isOptionSelected: function(plan, index){
+            var selected = this.plansOption[plan];
+            return selected !== undefined && selected == index;
+        },
+        getCardToken: function(cb){
+            var vm = this;
+            Stripe.setPublishableKey(djaodjinSettings.stripePubKey);
+            Stripe.createToken({
+                number: vm.cardNumber,
+                cvc: vm.cardCvc,
+                exp_month: vm.cardExpMonth,
+                exp_year: vm.cardExpYear,
+                name: vm.name,
+                address_line1: vm.addressLine1,
+                address_city: vm.addressCity,
+                address_state: vm.addressRegion,
+                address_zip: vm.addressZip,
+                address_country: vm.addressCountry
+            }, function(code, res){
+                if(code === 200) {
+                    if(cb) cb(res.id)
+                } else {
+                    showMessages([res.error.message], "error");
+                }
+            });
+        },
+        getUserCard: function(){
+            var vm = this;
+            $.ajax({
+                method: 'GET',
+                url: djaodjinSettings.urls.api_card,
+            }).done(function(resp) {
+                if(resp.last4){
+                    var savedCard = {
+                        last4: resp.last4,
+                        exp_date: resp.exp_date,
+                        card_name: resp.card_name,
+                    }
+                    vm.savedCard = savedCard;
+                    vm.haveCardData = true;
+                }
+            });
+        },
+        doCheckout: function(token){
+            var vm = this;
+            var opts = vm.getOptions();
+            var data = {
+                remember_card: true,
+                items: opts,
+            }
+            if(token){
+                data.processor_token = token;
+            }
+            $.ajax({
+                method: 'POST',
+                url: djaodjinSettings.urls.api_checkout,
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+            }).done(function(resp) {
+                vm.optionsConfirmed = false;
+                showMessages(["Success."], "success");
+                vm.get()
+            }).fail(function(resp){
+                showErrorMessages(resp);
+            });
+        },
+        checkout: function(){
+            var vm = this;
+            if(vm.haveCardData){
+                vm.doCheckout();
+            } else {
+                vm.getCardToken(vm.doCheckout);
+            }
+        }
     },
     computed: {
         linesPrice: function(){
@@ -1414,10 +1846,10 @@ var app = new Vue({
             if(this.items.results){
                 this.items.results.map(function(e){
                     if(e.options.length > 0){
-                        var option = vm.selectedOption(e.subscription.plan.slug);
-                        if(option){
-                            total += option.dest_amount;
-                            unit = option.dest_unit;
+                        var option = vm.plansOption[e.subscription.plan.slug];
+                        if(option !== undefined){
+                            total += e.options[option].dest_amount;
+                            unit = e.options[option].dest_unit;
                         }
                     }
                     e.lines.map(function(l){
@@ -1431,6 +1863,7 @@ var app = new Vue({
     },
     mounted: function(){
         this.get()
+        this.getUserCard();
     }
 })
 }
