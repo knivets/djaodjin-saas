@@ -1645,6 +1645,7 @@ var app = new Vue({
     mixins: [itemListMixin],
     data: {
         url: djaodjinSettings.urls.api_checkout,
+        isBulkBuyer: djaodjinSettings.bulkBuyer,
         plansOption: {},
         plansPayer: {},
         coupon: '',
@@ -1676,8 +1677,8 @@ var app = new Vue({
             vm.items.results.map(function(item, index){
                 var plan = item.subscription.plan.slug
                 var option = vm.plansOption[plan];
-                if(option !== undefined){
-                    res[index] = {option: option + 1}
+                if(option){
+                    res[index] = {option: option}
                 }
             });
             return res;
@@ -1709,14 +1710,20 @@ var app = new Vue({
         },
         addPlanUser: function(plan, user){
             var vm = this;
+            var data = {
+                plan: plan,
+                first_name: user.firstName,
+                last_name: user.lastName,
+                sync_on: user.email
+            }
+            var option = vm.plansOption[plan];
+            if(option){
+                data.option = option
+            }
             $.ajax({
                 method: 'POST',
                 url: djaodjinSettings.urls.api_cart,
-                data: {
-                    plan: plan,
-                    first_name: user.firstName,
-                    last_name: user.lastName,
-                },
+                data: data,
             }).done(function(resp) {
                 showMessages(["User was added."], "success");
                 vm.get()
@@ -1733,7 +1740,7 @@ var app = new Vue({
                 var plan = e.subscription.plan.slug;
                 if(e.options.length > 0){
                     optionsConfirmed = false;
-                    periods[plan] = 0;
+                    periods[plan] = 1;
                 }
                 payers[plan] = {
                     firstName: '', lastName: '', email: ''
@@ -1755,7 +1762,7 @@ var app = new Vue({
         activeOption: function(item){
             var index = this.plansOption[item.subscription.plan.slug];
             if(index !== undefined){
-                var option = item.options[index];
+                var option = item.options[index - 1];
                 if(option) return option;
             }
             return {};
@@ -1848,8 +1855,8 @@ var app = new Vue({
                     if(e.options.length > 0){
                         var option = vm.plansOption[e.subscription.plan.slug];
                         if(option !== undefined){
-                            total += e.options[option].dest_amount;
-                            unit = e.options[option].dest_unit;
+                            total += e.options[option-1].dest_amount;
+                            unit = e.options[option-1].dest_unit;
                         }
                     }
                     e.lines.map(function(l){

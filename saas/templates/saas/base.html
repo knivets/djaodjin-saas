@@ -123,6 +123,7 @@ user: {
 {% if STRIPE_PUB_KEY %}
     stripePubKey: "{{ STRIPE_PUB_KEY }}",
 {% endif %}
+bulkBuyer: {% if is_bulk_buyer %}true{% else %}false{% endif %},
 csrf: "{{csrf_token}}"
 };
 </script>

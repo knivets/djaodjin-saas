@@ -21,12 +21,12 @@
                                         <td>[[line.amount]]</td>
                                         <td v-html="line.description"></td>
                                     </tr>
-                                    <tr class="seat" v-show="optionsConfirmed">
+                                    <tr class="seat" v-show="optionsConfirmed && isBulkBuyer">
                                       <td colspan="3">
                                         <input type="text" v-model="planPayer(item.subscription.plan.slug).firstName" placeholder="First Name" />
                                         <input type="text" v-model="planPayer(item.subscription.plan.slug).lastName" placeholder="Last Name" />
                                         <input type="text" v-model="planPayer(item.subscription.plan.slug).email" placeholder="Email" />
-                                        <button @click="addPlanUser(item.subscription.plan.slug, planPayer(item.subscription.plan.slug))" type="button">Add</button>
+                                        <button @click.prevent="addPlanUser(item.subscription.plan.slug, planPayer(item.subscription.plan.slug))" type="button">Add</button>
                                       </td>
                                     </tr>
                                     <tr v-show="optionsConfirmed">
@@ -35,7 +35,7 @@
                                         <td v-html="activeOption(item).description"></td>
                                     </tr>
                                     <tr v-for="(option, index) in item.options" v-show="!optionsConfirmed">
-                                        <td><input type="radio" @change="optionSelected(item.subscription.plan.slug, index)" :checked="isOptionSelected(item.subscription.plan.slug, index)"></input></td>
+                                        <td><input type="radio" @change="optionSelected(item.subscription.plan.slug, index + 1)" :checked="isOptionSelected(item.subscription.plan.slug, index + 1)"></input></td>
                                         <td>[[option.amount]]</td>
                                         <td v-html="option.description"></td>
                                     </tr>

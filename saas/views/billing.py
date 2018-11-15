@@ -756,6 +756,7 @@ class CheckoutView(OrganizationMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(CheckoutView, self).get_context_data(**kwargs)
+        context.update({'is_bulk_buyer': self.organization.is_bulk_buyer})
         try:
             context.update(self.organization.retrieve_card())
         except ProcessorConnectionError:
