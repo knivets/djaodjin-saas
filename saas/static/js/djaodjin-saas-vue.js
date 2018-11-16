@@ -1831,7 +1831,8 @@ var app = new Vue({
             }).done(function(resp) {
                 vm.optionsConfirmed = false;
                 showMessages(["Success."], "success");
-                vm.get()
+                var id = resp.processor_key;
+                location = djaodjinSettings.urls.receipt.replace('_', id);
             }).fail(function(resp){
                 showErrorMessages(resp);
             });

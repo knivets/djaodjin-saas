@@ -57,6 +57,9 @@ urls: {
 {% if urls.organization %}
     api_checkout: "{{urls.organization.api_checkout}}",
     api_card: "{{ urls.organization.api_card }}",
+{% if urls.organization.receipt %}
+    receipt: "{{ urls.organization.receipt }}",
+{% endif %}
 {% if urls.organization.api_roles %}
     saas_api_user_roles_url: "{{ urls.organization.api_roles }}",
 {% endif %}

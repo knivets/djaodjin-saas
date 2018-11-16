@@ -763,9 +763,13 @@ class CheckoutView(OrganizationMixin, TemplateView):
             messages.error(self.request, _("The payment processor is "\
                 "currently unreachable. Sorry for the inconvienience."))
         urls = {'organization': {
-            'api_checkout': reverse('saas_api_checkout', args=(self.organization,)),
-            'update_card': reverse(
-                'saas_update_card', args=(self.organization,))
+            'api_checkout': reverse('saas_api_checkout',
+                args=(self.organization,)),
+             # we don't know charge id yet, so we only fill org
+            'receipt': reverse('saas_charge_receipt',
+                args=(self.organization, '_')),
+            'update_card': reverse('saas_update_card',
+                args=(self.organization,))
         }}
         self.update_context_urls(context, urls)
         return context
