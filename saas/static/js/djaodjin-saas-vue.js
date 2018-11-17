@@ -1842,8 +1842,59 @@ var app = new Vue({
             if(vm.haveCardData){
                 vm.doCheckout();
             } else {
+                vm.updateOrgAddress();
                 vm.getCardToken(vm.doCheckout);
             }
+        },
+        getOrgAddress: function(){
+            var vm = this;
+            $.ajax({
+                method: 'GET',
+                url: djaodjinSettings.urls.saas_api_organization,
+            }).done(function(org) {
+                if(org.street_address){
+                    vm.addressLine1 = org.street_address;
+                }
+                if(org.locality){
+                    vm.addressCity = org.locality;
+                }
+                if(org.postal_code){
+                    vm.addressZip = org.postal_code;
+                }
+                if(org.country){
+                    vm.addressCountry = org.country;
+                }
+                if(org.region){
+                    vm.addressRegion = org.region;
+                }
+                vm.organization = org;
+            });
+        },
+        updateOrgAddress: function(){
+            var vm = this;
+            var data = {}
+            var org = vm.organization;
+            if(!org.street_address){
+                data.street_address = vm.addressLine1;
+            }
+            if(!org.locality){
+                data.locality = vm.addressCity;
+            }
+            if(!org.postal_code){
+                data.postal_code = vm.addressZip;
+            }
+            if(!org.country){
+                data.country = vm.addressCountry;
+            }
+            if(!org.region){
+                data.region = vm.addressRegion;
+            }
+            $.ajax({
+                method: 'POST',
+                url: djaodjinSettings.urls.saas_api_organization,
+                data: data,
+                // silently try to update the org's address
+            });
         }
     },
     computed: {
@@ -1872,6 +1923,7 @@ var app = new Vue({
     mounted: function(){
         this.get()
         this.getUserCard();
+        this.getOrgAddress();
     }
 })
 }
