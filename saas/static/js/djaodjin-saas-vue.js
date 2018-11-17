@@ -1667,10 +1667,6 @@ var app = new Vue({
         regions: regions,
     },
     methods: {
-        parseDescr: function(des){
-            var res = des.split('(');
-            return res[res.length-1].split(' ')[0];
-        },
         getOptions: function(){
             var vm = this;
             var res = [];
@@ -1819,6 +1815,11 @@ var app = new Vue({
             var data = {
                 remember_card: true,
                 items: opts,
+                street_address: vm.addressLine1,
+                locality: vm.addressCity,
+                postal_code: vm.addressZip,
+                country: vm.addressCountry,
+                region: vm.addressRegion,
             }
             if(token){
                 data.processor_token = token;
@@ -1842,7 +1843,6 @@ var app = new Vue({
             if(vm.haveCardData){
                 vm.doCheckout();
             } else {
-                vm.updateOrgAddress();
                 vm.getCardToken(vm.doCheckout);
             }
         },
@@ -1870,32 +1870,6 @@ var app = new Vue({
                 vm.organization = org;
             });
         },
-        updateOrgAddress: function(){
-            var vm = this;
-            var data = {}
-            var org = vm.organization;
-            if(!org.street_address){
-                data.street_address = vm.addressLine1;
-            }
-            if(!org.locality){
-                data.locality = vm.addressCity;
-            }
-            if(!org.postal_code){
-                data.postal_code = vm.addressZip;
-            }
-            if(!org.country){
-                data.country = vm.addressCountry;
-            }
-            if(!org.region){
-                data.region = vm.addressRegion;
-            }
-            $.ajax({
-                method: 'POST',
-                url: djaodjinSettings.urls.saas_api_organization,
-                data: data,
-                // silently try to update the org's address
-            });
-        }
     },
     computed: {
         linesPrice: function(){
