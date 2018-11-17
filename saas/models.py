@@ -719,6 +719,18 @@ class Organization(models.Model):
 
         return charge
 
+    def update_address_if_empty(self, country=None, region=None, locality=None,
+        street_address=None, postal_code=None):
+        if not (self.country or self.region) and country and region:
+            self.country = country
+            self.region = region
+        if not self.locality and locality:
+            self.locality = locality
+        if not self.street_address and street_address:
+            self.street_address = street_address
+        if not self.postal_code and postal_code:
+            self.postal_code = postal_code
+
     def get_deposit_context(self):
         return self.processor_backend.get_deposit_context()
 

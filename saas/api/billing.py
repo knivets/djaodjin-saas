@@ -462,16 +462,10 @@ class CheckoutAPIView(CartMixin, OrganizationMixin,
                 if opt_index >= len(queryset[index]['options']): continue
                 selected = queryset[index]['options'][opt_index]
                 queryset[index]['lines'].append(selected)
-        org = self.organization
-        if not (org.country or org.region):
-            org.country = data.get('country')
-            org.region = data.get('region')
-        if not org.locality:
-            org.locality = data.get('locality')
-        if not org.street_address:
-            org.street_address = data.get('street_address')
-        if not org.postal_code:
-            org.postal_code = data.get('postal_code')
+        self.organization.update_address_if_empty(country=data.get('country'),
+            region=data.get('region'), locality=data.get('locality'),
+            street_address=data.get('street_address'),
+            postal_code=data.get('postal_code'))
 
         try:
             charge = self.organization.checkout(
